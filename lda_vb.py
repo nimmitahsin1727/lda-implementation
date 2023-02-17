@@ -7,7 +7,7 @@ from scipy.special import gammaln, psi
 from formatted_logger import formatted_logger
 
 eps = 1e-3
-
+np.random.seed(42)
 logger = formatted_logger('vbLDA')
 
 def dirichlet_expectation(alpha):
@@ -24,7 +24,7 @@ class vbLDA:
     Latent Dirichlet allocation with mean field variational inference
     """
 
-    def __init__(self, n_doc, n_voca, n_topic, alpha=0.1, beta=0.01, is_compute_bound=True):
+    def __init__(self, n_doc, n_voca, n_topic, alpha=0.1, beta=0.01, is_compute_bound=True, verbose=True):
         self.n_voca = n_voca
         self.n_topic = n_topic
         self.n_doc = n_doc
@@ -38,14 +38,15 @@ class vbLDA:
         self.gamma = 1 * np.random.gamma(100., 1. / 100, (self.n_doc, self.n_topic))
 
         self.is_compute_bound = is_compute_bound
+        self.verbose = verbose
 
     def fit(self, doc_ids, doc_cnt, max_iter=100):
 
         for iter in xrange(max_iter):
             tic = time.time()
             _, bound = self.do_m_step(doc_ids, doc_cnt)
-            # if self.verbose:
-            #     logger.info('[ITER] %d,\telapsed time:%.2f,\tELBO:%.2f', iter, time.time() - tic, bound)
+            if self.verbose:
+                logger.info('[ITER] %d,\telapsed time:%.2f,\tELBO:%.2f', iter, time.time() - tic, bound)
 
     def do_e_step(self, doc_ids, doc_cnt):
         """
